@@ -70,6 +70,7 @@ var carouselController = {
   onSlideHandler(e) {
     if (this.getLen() <= (this.high - this.low + 1))
       return
+
     if (e.direction === 'left') {
       this.low = (this.low + 1) % this.getLen()
       this.high = (this.high + 1) % this.getLen()
@@ -130,7 +131,7 @@ $( document ).ready( function () {
   });
 
   var carousel = $("#carousel")
-  carousel.hide()
+  //carousel.hide()
   carousel.on('slid.bs.carousel', function(e) { carouselController.onSlideHandler(e) })
 
   fetchImageData(1000)
