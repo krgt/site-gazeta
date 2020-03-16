@@ -1,6 +1,6 @@
 var carouselController = {
-  low: -5,
-  high: 5,
+  low: -1,
+  high: 1,
   data: [],
 
   getLen() {
@@ -17,7 +17,7 @@ var carouselController = {
   getIndexList() {
     var indexes = []
 
-    for (i = this.low; i < this.high; i++) {
+    for (i = this.low; i <= this.high; i++) {
       indexes.push(this.convertIndex(i))
     }
 
@@ -35,6 +35,8 @@ var carouselController = {
               <h5 class="carousel-text" >${image.rover.name}</h5>
               <br>
               <p class="carousel-text">${image.earth_date}</p>
+              <br>
+              <p class="carousel-text">${i}</p>
             </div>
         </div>
     `
@@ -43,6 +45,8 @@ var carouselController = {
   },
 
   initCarousel(data) {
+    this.low = -1
+    this.high = 1
     this.data = data.photos
 
     if (!this.data || this.data.length === 0) {
@@ -54,7 +58,8 @@ var carouselController = {
     this.getIndexList().forEach( i => {
       var photo = this.data[i]
       var active = i === 0 ? 'active' : ''
-      this.insertImageIntoCarousel(photo, i, 'append', active)
+      if (photo)
+        this.insertImageIntoCarousel(photo, i, 'append', active)
     })
 
     var carousel = $("#carousel")
@@ -63,23 +68,33 @@ var carouselController = {
   },
 
   onSlideHandler(e) {
+    if (this.getLen() <= (this.high - this.low + 1))
+      return
     if (e.direction === 'left') {
-      this.low += 1
-      this.high += 1
+      this.low = (this.low + 1) % this.getLen()
+      this.high = (this.high + 1) % this.getLen()
+
+      console.log(`img window: [${this.low}, ${this.high}]`)
 
       var carouselInner = $(".carousel-inner")
       carouselInner.children(":first-child").remove()
 
-      var index = this.convertIndex(this.high - 1)
+      var index = this.convertIndex(this.high)
       this.insertImageIntoCarousel(this.data[index], index, 'append')
     } else if (e.direction === 'right') {
-      this.low -= 1
-      this.high -= 1
+      this.low = (this.low - 1) % this.getLen()
+      this.high = (this.high - 1) % this.getLen()
+
+      // deal with negative zero
+      this.low = this.low === 0 ? 0 : this.low
+      this.high = this.high === 0 ? 0 : this.high
+
+      console.log(`img window: [${this.low}, ${this.high}]`)
 
       var carouselInner = $(".carousel-inner")
       carouselInner.children(":last-child").remove()
 
-      var index = this.convertIndex(this.low) - 1
+      var index = this.convertIndex(this.low)
       this.insertImageIntoCarousel(this.data[index], index, 'prepend')
     }
   }
